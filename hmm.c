@@ -10,7 +10,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME Hyunkyu Lee 
+ *         Author:  Hyunkyu Lee 
  *   Organization:  Han Lab 
  *
  * =====================================================================================
