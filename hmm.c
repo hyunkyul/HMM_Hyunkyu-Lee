@@ -99,6 +99,65 @@ int main(int argc, char **argv) {
 	}
 
 	// HMM
+	const double Ne = 11418;
+	const double e = 0.01; //sequencing error rate
+	double theta;
+	double lambda;
+	double **emission;
+	double **alpha;
+	double **beta;
+	double trans_allsame;
+	double trans_alldiff;
+	double trans_onesame;
+	int *arnrm;
+	int *brnrm;
+	double rho;
+	double e_rhoN;
+	double a, b, c, sum;
+	double asum, bsum;
+	double *ch;
+	double *ck;
+	double *beta_times_b;
+	double *pstate;
+	double *postp;
+	double maxpstate;
+	int maxh, maxk;
+	int incorrect_allele_cnt;
+	double accuracy;
+	double allele_dosage_diff;
+	const double BIG = pow(2,66);
+	const double BIGI = pow(2,-66);
+	
+	theta = 0.;
+	for (i = 1; i < N; i++) theta += 1./i;
+	theta = 1./theta;
+	lambda = theta / (2*(theta+N));
+	emission = (double**)malloc(3*sizeof(double*));
+	for (i = 0; i < 3; i++)
+		emission[i] = (double*)malloc(3*sizeof(double));
+	emission[0][0] = emission[2][2] = (1-lambda)*(1-lambda);
+	emission[0][2] = emission[2][0] = lambda*lambda;
+	emission[0][1] = emission[2][1] = 2*lambda*(1-lambda);
+	emission[1][0] = emission[1][2] = lambda*(1-lambda);
+	emission[1][1] = lambda*lambda+(1-lambda)*(1-lambda);
+
+	alpha = (double**)malloc(nsnp*sizeof(double*));
+	beta = (double**)malloc(nsnp*sizeof(double*));
+	for (i = 0; i < nsnp; i++)	{
+		alpha[i] = (double*)malloc(N*N*sizeof(double));
+		beta[i] = (double*)malloc(N*N*sizeof(double));
+	}
+	pstate = (double*)malloc(N*N*sizeof(double));
+	arnrm = (int*)malloc(nsnp*sizeof(int));
+	brnrm = (int*)malloc(nsnp*sizeof(int));
+	ch = (double*)malloc(N*sizeof(double));
+	ck = (double*)malloc(N*sizeof(double));
+	postp = (double*)malloc(3*sizeof(double));
+	beta_times_b = (double*)malloc(N*N*sizeof(double));
+	
+	//forward probability
+	
+
 
 
 		
