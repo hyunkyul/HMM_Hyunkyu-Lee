@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 	fin = fopen(snpdataf, "r");
 	for (i = 0; i < nsnp; i++) { 
 		for (h = 0; h < nhap; h++) {
-		fscanf(fin, "%d", &snpdata[i*nhap+h]); // does the address is the address of the hard drive?
+		fscanf(fin, "%d", &snpdata[i*nhap+h]); //one at a time to address at the snpdata size
 		}	
 	}	
 	fclose(fin);
@@ -75,13 +75,31 @@ int main(int argc, char **argv) {
 	}
 	fclose(fin);
 
-	
+	if (mode == T) {
+		fin = fopen(tagf, "r");
+		for (i = 0; i < nsnp; i++)
+			is_tag[i] = 0;
+		for (u = 0; i < ntag; i++)
+				fscanf(fin, "%d", &j);
+				j--;
+				is_tag[j] = 1;	
+		}
+	}
+	nsampref = nsamp-1;
+	N = nsampref*2;
+	target = (int*)malloc(nsnp*sizeof(int));
+	ref = (int*)malloc(nsnp*N*sizeof(int));
+	for (i = 0; i < nsnp; i++) {
+		target[i] = snpdata[i*nhap] + snpdata[i*nhap+1];
+	}
+	for (i = 0; i < nsnp; i++) {
+		for (h = 0; h < N; h++) {
+			ref[i*N*h] = snpdata[i*nhap+(h+2)];
+		}
+	}
+
+	// HMM
+
+
+		
 }
-
-
-
-
-
-
-
-
