@@ -155,10 +155,174 @@ int main(int argc, char **argv) {
 	postp = (double*)malloc(3*sizeof(double));
 	beta_times_b = (double*)malloc(N*N*sizeof(double));
 	
-	//forward probability
+	//forward probability	
+	for (h = 0; h < N; h++) {
+		for (k = 0; k < N; k++) { // this indicates for N*N states
+			if (mode == T) {
+				alpha[0][h*N+k] = (is_tag[0] == 1)? emission[ref[0*N+h]+ref[0*N+k]][target[0]] : 1.; // isn't observation tag? 
+			}
+		}
+	}
+	arnrm[0] = 0;
+	for (i = 1; i < nsnp; i++) { // for all snps
+		if (i % 1000 == 0) fprintf(stderr, "forward &d\n", i);
+		rho = 4*Ne*(gmap[i]-gmap[i-1]);
+		e_rhoN = exp(-rho/N);
+		trans_allsame = pow(e_rhoN+(1-e_rhoN)/N, 2);
+		trans_alldiff = pow((1-e_rhoN)/N, 2);
+		trans_onesame = (e_rhoN+(1-e_rhoN)/N) * ((1-e_rhoN)/N);
+
+// for efficiency, introduce ch = sum_k(alpha[i-1]), and similarly ck
+// also, c = sum_{hk}(alpha[i-1])
+
+		c = 0.;
+		for (h = 0; h < N; h++) {
+			ch[h] = ck[h] = 0.;
+		}
+		for (h = 0; h < N; h++) {
+			for (k = 0; k < N; k++) {
+				ch[h] += alpha[i-1][h*N+k];
+				ck[k] += alpha[i-1][h*N+k];
+				c += alpha[i-1][h*N+k];
+			}	
+		}
 	
+		// calculate alpha for each state
+		asum = 0.;
+		for (h = 0; h < N; h++) {
+			for (k = 0; k < N; k++) { // for all state N*N
+				if (mode == T) {
+					b = (is_tag[i] == 1)? emission[ref[i*N+h]+ref[i*N+k]][target[i]] : 1.;  // isn't observation tag?
+				}
+				a = alpha[i-1][h*N+k];
+				alpha[i][h*N+k] = ( (c-ch[h]-ck[k]+a)*trans_alldiff + (ch[h]+ck[k]-a)*trans_onesame + a*trans_allsame ) * b;
+				asum += alpha[i][h*N+k];
+			}	
+		}
+		arnrm[i] = arnrm[i-1];
+		if (asum < BIGI) { // renormalize if necessary
+			++arnrm[i];
+			for (h = 0; h < N; h++) {
+				for (k = 0; k < N; k++) { //for all N*N states
+				alpha[i][h*N+k] *= BIG;
+				}
+			}
+		}
+		if (asum > BIG) { 
+			--arnrm[i];
+			for (h = 0; h < N; h++) {
+				for (k = 0; k < N; k++) {
+					alpha[i][h*N+k] *= BIGI;
+				}
+			}
+		}
+	}
 
+	// backward probability
+	for (h = 0; h < N; h++) {
+		for (k = 0; k < N; k++) { //for all N*N
+			beta[nsnp-1][h*N+k] = 1.;
+		}
+	}
+	brnrm[nsnp-1] = 0;
+	for (i = nsnp-2; i >= 0; i--) {
+		if (i%1000 == 0) fprintf(stderr, "backward %d\n", i);
+		rho = 4*Ne*(gmap[i+1]-gmap[i]);
+		e_rhoN = exp(-rho/N);
+		trans_allsame = pow(e_rhoN+(1-e_rhoN)/N, 2);
+		trans_alldiff = pow((1-e_rhoN)/N, 2);
+		trans_onesame = (e_rhoN+(1-e_rhoN)/N) * ((1-e_rhoN)/N);
+		// introduce ch, ck, c
+		// store beta*b first
+		for (h = 0; h < N; h++) {
+			for (k = 0; k < N; k++) {
+				if (mode == T) {
+					b = (is_tag[i+1] == 1)? emission[ref[(i+1)*N+h]+ref[(i+1)*N+k]][target[i+1]] : 1.; //isn't observation tag?
+				}
+				beta_times_b[h*N+k] = b * beta[i+1][h*N+k];
+			}
+		}
+		c = 0.;
+		for (h = 0; h < N; h++) {
+			ch[h] = ck[h] = 0.;
+		}
+		for (h = 0; h < N; h++) {
+			for (k = 0; k < N; k++) {
+				ch[h] += beta_times_b[h*N+k];
+				ck[k] += beta_times_b[h*N+k];
+				c += beta_times_b[h*N+k];
+			}
+		}
+		// calculate beta for each state
+		bsum = 0.; 
+		for (h = 0; h < N; h++) {
+			for (k = 0; k < N; k++) { // for all previous N*N
+				a = beta_times_b[h*N+k];
+				beta[i][h*N+k] = (c-ch[h]-ck[k]+a)*trans_alldiff + (ch[h]+ck[k]-a)*trans)_onesame + a*trans_allsame;
+				bsum += beta[i][h*N+k];
+			}	
+		}
+		brnrm[i] = brnrm[i+1];
+		if (bsum < BIGI) { // renormalize if necessary
+			++brnrm[i];
+			for (h = 0; h < N; h++) {
+				for (k = 0; k < N; k++) { //for all N*N states
+					beta[i][h*N+k] *= BIG;
+				}
+			}
+		}
+		if (bsum > BIG) {
+			--brnrm[i];
+			for (h = 0; h < N; h++) {
+				for (k = 0; k < N; k++) { // for all N*N states 
+					beta[i][h*N+k] *= BIGI;
+				}
+			}
+		}
+	}
 
-
+	// pstate calculation
+	incorrect_allele_cnt = 0;
+	allele_dosage_diff = 0.;
+	for (i = 0; i < nsnp; i++) {
+		sum = 0.;
+		for (h = 0; h < N; h++) {
+			for (k = 0; k < N; k++) {
+				sum += (pstate[h*N+k] = alpha[i][h*N+k]*beta[i][h*N+k]);
+			}
+		}
+		for (h = 0; h < N; h++) {
+			for (k = 0; k < N; k++) {
+				pstate[h*N+k] /= sum;
+			}
+		}
+		postp[0] = post[1] = post[2] = 0.;
+		maxpstate = 0.;
+		for (h = 0; h < N; h++) {
+			for (k = 0; k < N; k++) {
+				postp[ref[i*N+h]+ref[i*N+k]] += pstate[h*N+k];
+				if (pstate[h*N+k] > maxpstate) {
+				maxh = h;
+				maxk = k;
+				}
+			}
+		}
+		if (postp[0] >= postp[1] && postp[0] >= postp[2]) {
+			incorrect_allele_cnt += abs(target[i] - 0);
+		} else if (postp[1] >= postp[2]) {
+			incorrect_allele_cnt += abs(target[i] - 1);
+		} else {
+			incorrect_allele_cnt += abs(target[i] - 2);
+		}
+		allele_dosage_diff += fabs(postp[1]+postp[2]*2 - target[i]);
 		
+	}
+	accuracy = (2.0*nsnp - incorrect_allele_cnt)/(2.0*nsnp);
+	printf("%.5lf ", accuracy);
+	accuracy = 1. - allele_dosage_diff/(2.0*nsnp);
+	printf("%.5lf ", accuracy);
+	printf("\n");
+	return 0;
 }
+
+
