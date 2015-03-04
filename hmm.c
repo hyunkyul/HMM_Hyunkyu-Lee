@@ -24,8 +24,9 @@
 int main(int argc, char **argv) {
 	FILE *fin;   
    int i,j,h,k; //global variables that we may want to eliminate.
-   char *gmapf; // genetic map data file name
    char *snpdataf; //reference snp data filename
+   char *gmapf; // genetic map data file name
+	char *mode_char;
 	int nsnp; //total number of snps
 	int nsamp; //total number of individuals in snp data
 	int nhap; //total number of chromosomes (nsamp*2
@@ -40,11 +41,10 @@ int main(int argc, char **argv) {
 	int ntag; // number of tags
 	int *is_tag; // is tag ?
 	
-	enum Mode {T} mode;
+	enum Mode {T, S, PS} mode;
  
 	if (!strcmp(argv[1], "-T")) { mode = T; }//support the first argument as mode selection.
 	else { printf("only mode -T is available now");
-		break;
 	}
 	i = 2; //since we already used argv[1]
 	snpdataf = argv[i++]; //just file name we should call it by FILE function in c++ lib (stdio.h)
@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 		fin = fopen(tagf, "r");
 		for (i = 0; i < nsnp; i++)
 			is_tag[i] = 0;
-		for (u = 0; i < ntag; i++)
+		for (i = 0; i < ntag; i++) {
 				fscanf(fin, "%d", &j);
 				j--;
 				is_tag[j] = 1;	
@@ -165,7 +165,7 @@ int main(int argc, char **argv) {
 	}
 	arnrm[0] = 0;
 	for (i = 1; i < nsnp; i++) { // for all snps
-		if (i % 1000 == 0) fprintf(stderr, "forward &d\n", i);
+		if (i % 1000 == 0) fprintf(stderr, "forward %d\n", i);
 		rho = 4*Ne*(gmap[i]-gmap[i-1]);
 		e_rhoN = exp(-rho/N);
 		trans_allsame = pow(e_rhoN+(1-e_rhoN)/N, 2);
@@ -258,7 +258,7 @@ int main(int argc, char **argv) {
 		for (h = 0; h < N; h++) {
 			for (k = 0; k < N; k++) { // for all previous N*N
 				a = beta_times_b[h*N+k];
-				beta[i][h*N+k] = (c-ch[h]-ck[k]+a)*trans_alldiff + (ch[h]+ck[k]-a)*trans)_onesame + a*trans_allsame;
+				beta[i][h*N+k] = (c-ch[h]-ck[k]+a)*trans_alldiff + (ch[h]+ck[k]-a)*trans_onesame + a*trans_allsame;
 				bsum += beta[i][h*N+k];
 			}	
 		}
@@ -296,7 +296,7 @@ int main(int argc, char **argv) {
 				pstate[h*N+k] /= sum;
 			}
 		}
-		postp[0] = post[1] = post[2] = 0.;
+		postp[0] = postp[1] = postp[2] = 0.;
 		maxpstate = 0.;
 		for (h = 0; h < N; h++) {
 			for (k = 0; k < N; k++) {
