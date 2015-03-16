@@ -20,22 +20,26 @@
 #include <vector>
 #include <cmath>
 
-int main(int argc, char **argv)
+int main()
 {
-	FILE *fin;
-	char *f1;
-	char *f2;
+//	FILE *fin;
+//	char *f1;
+//	char *f2;
+
 
 	int i,j,h,k; //universal variables
-	int **nodecount; //node count
-	int **edgepath; //edge path to next edge
-	int D; //number of levels
-
-	i=1;
-	f1= argv[i++];
-	f2= argv[i++];
-	D=4;
-
+	int nodecount[5][16] = {{600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {311, 289, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {195, 116, 289, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {237, 247, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {46, 191, 247, 0, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}; // node matrix which has counts at the node
+	int edgepath[5][16] = {{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+//	int D;
+/* 
 	nodecount = (int**)malloc((D+1)*sizeof(int*));
 	for (i=0;i<D+1;i++)
 			nodecount[i] = (int*)malloc(pow(2, D)*sizeof(int));
@@ -43,6 +47,8 @@ int main(int argc, char **argv)
 	edgepath = (int**)malloc((D+1)*sizeof(int*));
 	for (i=0;i<D+1;i++)
 			edgepath[i] = (int*)malloc(pow(2, D)*sizeof(int));
+*/
+/*
 
 // file read
 
@@ -52,11 +58,11 @@ int main(int argc, char **argv)
 		for (j=0;j<16; j++)
 		{
 		fscanf(fin, "%d", &nodecount[i][j]); //ibe at a tune to address at the nodecount size
-		printf("%d ",nodecount[i][j]);
+		printf("%d",nodecount[i][j]);
 		}
-		printf("\n");
+		return 0;
 
-   }
+	}
  
 	fin = fopen(f2,"r");
  	for (i=0;i<D+1;i++)
@@ -64,12 +70,12 @@ int main(int argc, char **argv)
 		for (j=0;j<16; j++)
 		{
 		fscanf(fin, "%d", &edgepath[i][j]); //ibe at a tune to address at the nodecount size
-		printf("%d ",edgepath[i][j]);
 		}
-	printf("\n");
 	}
 
 //file read end  
+return 0;
+*/
 
 
 //file input
