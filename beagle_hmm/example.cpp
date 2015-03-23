@@ -98,7 +98,9 @@ int main(int argc, char **argv)
 	int **opennode;
 	double **alpha;
 	int *edgenum;
-	
+
+
+	printf("\n\n edgenumbers[i]\n\n");	
 	edgenum = (int*)malloc(D*sizeof(int*));
 	for (i=1;i<D+1;i++) //nodecount[][] has fake edge 0
 	{	
@@ -116,7 +118,7 @@ int main(int argc, char **argv)
 
 	opennode = (int**)malloc(D*sizeof(int*));  			//matrix size of [D][edgenum[i]^2]
 	for (i=0;i<D;i++)
-			sample[i] = (int*)malloc(pow(edgenum[i],2)*sizeof(int));
+			opennode[i] = (int*)malloc(pow(edgenum[i],2)*sizeof(int));
 	
 	alpha = (double**)malloc(D*sizeof(double**));		//matrix size of [D][edgenum[i]^2]
 	for (i=0;i<D;i++)
@@ -124,15 +126,15 @@ int main(int argc, char **argv)
 
 	// open node calculation : calculating paths which we are interested	and vanishing nodes which are not useful
 
+
+
+
 	for (i=0;i<D;i++)
 	{
 		for (j=0;j<edgenum[i];j++)
 		{
 			for (k=0;k<edgenum[i];k++)
 			{
-			h=edgenum[i]*j+k;	
-			printf("%d	",h);
-			/*
 				if (sample[i][0] == 0 || sample [i][1] == 0) 
 				{
 					if(sample[i][0] == 0 && sample[i][1] != 0)		opennode[i][edgenum[i]*j+k] = ((k%2)+1 == sample[i][1] && nodecount[i+1][k] != 0 )? 1: 0;
@@ -143,19 +145,21 @@ int main(int argc, char **argv)
 
 				else if (sample[i][0] == 1 || sample[i][1] == 1)
 				{
-					if(sample[i][0] == 1 && sample[i][1] != 1) opennode[i][edgenum[i]*j+k] = ((j%2)+1 == sample[i][0] && nodecount[i+1][j] != 0)? 1: 0;
+					if(sample[i][0] == 1 && sample[i][1] != 1) 		opennode[i][edgenum[i]*j+k] = ((j%2)+1 == sample[i][0] && nodecount[i+1][j] != 0)? 1: 0;
 					else if(sample[i][0] != 1 && sample[i][1] == 1) opennode[i][edgenum[i]*j+k] = ((k%2)+1 == sample[i][1] && nodecount[i+1][k] != 0)? 1: 0;
-					else opennode[i][edgenum[i]*j+k] = ((j%2)+1 == sample[i][0] && (k%2)+1 == sample[i][1] && nodecount[i+1][k] != 0 && nodecount[i+1][j] != 0)? 1: 0;
+					else 	opennode[i][edgenum[i]*j+k] = ((j%2)+1 == sample[i][0] && (k%2)+1 == sample[i][1] && nodecount[i+1][k] != 0 && nodecount[i+1][j] != 0)? 1: 0;
 				}
 				else if (sample[i][0] == 2 || sample[i][1] == 2)
 				{
-					if(sample[i][0] == 2 && sample[i][1] != 2) opennode[i][edgenum[i]*j+k] = ((j%2)+1 == sample[i][0] && nodecount[i+1][j] != 0)? 1: 0;
+					if(sample[i][0] == 2 && sample[i][1] != 2) 		opennode[i][edgenum[i]*j+k] = ((j%2)+1 == sample[i][0] && nodecount[i+1][j] != 0)? 1: 0;
 					else if(sample[i][0] != 2 && sample[i][1] == 2) opennode[i][edgenum[i]*j+k] = ((k%2)+1 == sample[i][1] && nodecount[i+1][k] != 0)? 1: 0;
-					else opennode[i][edgenum[i]*j+k] = ((j%2)+1 == sample[i][0] && (k%2)+1 == sample[i][1] && nodecount[i+1][k] != 0 && nodecount[i+1][j] != 0)? 1: 0;
-				}*/
-			printf("\n");
+					else 	opennode[i][edgenum[i]*j+k] = ((j%2)+1 == sample[i][0] && (k%2)+1 == sample[i][1] && nodecount[i+1][k] != 0 && nodecount[i+1][j] != 0)? 1: 0;
+				}
+			printf("%d	",opennode[i][edgenum[i]*j+k]);
 	 		}
 		}
+
+	printf("\n");
 	}
 	
 		
